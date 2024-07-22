@@ -2,24 +2,21 @@ part of JWTools;
 
 class JWBaseModel {
   int? code;
-  String? message;
-  String? request_id;
+  String? msg;
   dynamic data;
 
-  JWBaseModel({this.code, this.message, this.data, this.request_id});
+  JWBaseModel({this.code, this.msg, this.data,});
 
   factory JWBaseModel.fromRawJson(String str) => JWBaseModel.fromJson(json
       .decode(str) as Map<String,dynamic>);
   factory JWBaseModel.fromJson(Map<String, dynamic> json) => JWBaseModel(
     code: json["code"],
-    message: json["message"].toString(),
-    request_id: json["request_id"].toString(),
-    data: json["data"] ?? ""
+      msg: json["msg"].toString(),
+      data: json["data"] ?? ""
   );
   Map<String,dynamic> toJson() => {
     "code":code,
-    "message":message,
-    "request_id":request_id,
+    "msg":msg,
     "data":data
   };
    bool get isOK => code == 200 || code == 0;

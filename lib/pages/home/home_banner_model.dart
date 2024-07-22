@@ -2,11 +2,11 @@ class HomeBannerModel {
   String? image;
   String? url;
 
-  HomeBannerModel(
-      {
-        this.image,
-        this.url,
-      });
+  HomeBannerModel({
+    this.image,
+    this.url,
+  });
+
   HomeBannerModel.fromJson(Map<String, dynamic> json) {
     image = json['image'].toString();
     url = json['url'].toString();

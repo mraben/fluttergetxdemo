@@ -122,7 +122,7 @@ class JWAsyncHttpRequest {
         if (response.data == null || response.data == 'null') {
           log("返回数据null");
           res.code = 500;
-          res.message = "返回数据null";
+          res.msg = "返回数据null";
           return res;
         } else {
           Map<String, dynamic> data = jsonDecode(response.data);
@@ -131,19 +131,19 @@ class JWAsyncHttpRequest {
             return model;
           } else {
             res.code = 500;
-            res.message = "返回数据不是json类型";
+            res.msg = "返回数据不是json类型";
             debugPrint("❌返回数据不是json类型：${response.data}");
             return res;
           }
         }
       }
       res.code = response.statusCode;
-      res.message = response.statusMessage;
+      res.msg = response.statusMessage;
       return res;
     } on DioError catch (e) {
       debugPrint("请求错误:${e.toString()}");
       res.code = 500;
-      res.message = e.toString();
+      res.msg = e.toString();
       Get.back();
       return res;
     }
@@ -229,7 +229,7 @@ class JWAsyncHttpRequest {
         if (response.data == null || response.data == 'null') {
           log("返回数据null");
           res.code = 500;
-          res.message = "返回数据null";
+          res.msg = "返回数据null";
           return res;
         } else {
           Map<String, dynamic> data = jsonDecode(response.data);
@@ -238,19 +238,19 @@ class JWAsyncHttpRequest {
             return model;
           } else {
             res.code = 500;
-            res.message = "返回数据不是json类型";
+            res.msg = "返回数据不是json类型";
             debugPrint("❌返回数据不是json类型：${response.data}");
             return res;
           }
         }
       }
       res.code = response.statusCode;
-      res.message = response.statusMessage;
+      res.msg = response.statusMessage;
       return res;
     } on DioError catch (e) {
       debugPrint("请求错误:${e.toString()}");
       res.code = 500;
-      res.message = e.toString();
+      res.msg = e.toString();
       Get.back();
       return res;
     }
@@ -266,7 +266,7 @@ class JWAsyncHttpRequest {
     var res = JWBaseModel();
     if (dio == null) {
       res.code == 444;
-      res.message = "S3地址未初始化";
+      res.msg = "地址未初始化";
       return res;
     }
     if (showHud == true) {
@@ -319,7 +319,6 @@ class JWAsyncHttpRequest {
       }
     }
 
-    // dio?.options.headers["accept-version"] = "1.0";
     dio?.options.headers["Accept-language"] = JWManager().language ?? "zh-Hans";
     dio?.options.contentType = "application/x-www-form-urlencoded";
     if (JWManager().token != null && JWManager().token?.isNotEmpty == true) {
@@ -338,15 +337,13 @@ class JWAsyncHttpRequest {
       //   dic?["token"] = JWManager().token;
       // }
 
-      var str = jsonEncode(dic);
-      if (url == JWApi.testGuoLuApi) {
-      } else {
-        var md5Str = keyToMd5((str + md5Key));
-        dic = {
-          "Param": AESTools.encryptString(str),
-          // "Autograph":md5Str
-        };
-      }
+      //加密
+      // var str = jsonEncode(dic);
+      // var md5Str = keyToMd5((str + md5Key));
+      // dic = {
+      //   "Param": AESTools.encryptString(str),
+      //   // "Autograph":md5Str
+      // };
 
       Response response = await dio!.request(
         url,
@@ -361,7 +358,7 @@ class JWAsyncHttpRequest {
       if (response.statusCode == HttpStatus.ok) {
         if (response.data == null || response.data == 'null') {
           res.code = 0;
-          res.message = "返回数据null";
+          res.msg = "返回数据null";
           return res;
         } else {
           dynamic data = jsonDecode(response.data);
@@ -373,8 +370,8 @@ class JWAsyncHttpRequest {
             }
 
             if ((!model.isOK) && showErrToast == true) {
-              var str = model.message;
-              if (model.message != null && str?.isNotEmpty == true) {
+              var str = model.msg;
+              if (model.msg != null && str?.isNotEmpty == true) {
                 JWToastUtil.showToastCenter(str!);
               }
               // JWToastUtil.showToastCenter(str!);
@@ -384,16 +381,16 @@ class JWAsyncHttpRequest {
           } else {
             debugPrint("❌返回数据不是json类型：${data}");
             res.code = 500;
-            res.message = "返回数据不是json类型";
+            res.msg = "返回数据不是json类型";
             if (showErrToast) {
-              JWToastUtil.showToastCenter(res.message ?? "");
+              JWToastUtil.showToastCenter(res.msg ?? "");
             }
             return res;
           }
         }
       }
       res.code = response.statusCode;
-      res.message = response.statusMessage;
+      res.msg = response.statusMessage;
       return res;
     } on DioError catch (e) {
       if (showHud == true) {
@@ -401,7 +398,7 @@ class JWAsyncHttpRequest {
       }
       debugPrint("请求错误:${e.toString()}");
       res.code = 500;
-      res.message = e.toString();
+      res.msg = e.toString();
       return res;
     }
   }

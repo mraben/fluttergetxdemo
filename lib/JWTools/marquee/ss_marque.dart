@@ -1,5 +1,8 @@
 part of JWTools;
 
+/**
+ * 跑马灯
+ */
 class SSMarquee extends StatefulWidget {
   const SSMarquee({required this.child, this.speed = 20, Key? key})
       : super(key: key);

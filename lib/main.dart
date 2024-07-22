@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
       minTextAdapt: true,
       builder: (context, _) {
         return GetMaterialApp(
-          debugShowCheckedModeBanner: false,
+          // debugShowCheckedModeBanner: false,
           navigatorKey: _rootNavigatorKey,
           initialRoute: Routes.TABBAR,
           translations: WBTranslateMessages(),

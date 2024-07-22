@@ -39,14 +39,14 @@ class HomePage extends StatelessWidget {
       backgroundColor: viewbgColor,
       body: logic.obx(
         (state) => Container(
-          margin: const EdgeInsets.only(top: 15, left: 15, right: 15),
           child: SmartRefresher(
             controller: logic.refreshController,
-            onRefresh: logic.loadBanners,
+            onRefresh: logic.refreshData,
             header: CNHeader(),
             child: ListView(
               children: [
                 _banner(),
+                _marqueeText(),
                 _getCenterText(),
               ],
             ),
@@ -56,13 +56,15 @@ class HomePage extends StatelessWidget {
     );
   }
 
+  /// 轮播图
   Widget _banner() {
     return Container(
+      margin: const EdgeInsets.all(15),
       height: Get.width * 0.4,
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12), color: Colors.grey),
+          borderRadius: BorderRadius.circular(12), color: Colors.transparent),
       child: Swiper(
-        itemCount: logic.homeBannerArray.length,
+        itemCount: logic.homeListModel.value.newslist!.length,
         itemHeight: Get.width * 0.4,
         autoplay: true,
         pagination: SwiperPagination(
@@ -72,20 +74,19 @@ class HomePage extends StatelessWidget {
                 size: const Size(6, 4),
                 activeSize: const Size(10, 4))),
         itemBuilder: (context, index) {
-          var model = logic.homeBannerArray[index];
+          var model = logic.homeListModel.value.newslist![index];
           return GestureDetector(
             onTap: () {
               logic.launchURL(model.url.toString());
             },
             child: Container(
-                margin: const EdgeInsets.only(
-                    left: 16, top: 12, right: 16, bottom: 8),
+                margin: const EdgeInsets.only(left: 5, right: 5),
                 decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12)),
                 clipBehavior: Clip.antiAlias,
                 child: WBCusImageView(
-                  icon: model.image.toString(),
+                  icon: model.picUrl.toString(),
                   fit: BoxFit.fill,
                 )),
           );
@@ -94,6 +95,18 @@ class HomePage extends StatelessWidget {
     );
   }
 
+  /// 跑马灯
+  Widget _marqueeText() {
+    return Container(
+      padding: const EdgeInsets.only(left: 15, right: 15),
+      margin: const EdgeInsets.only(top: 10, bottom: 10),
+      child: SSMarquee(
+        child: Text(logic.homeMarqueeString.value.content ?? ""),
+      ),
+    );
+  }
+
+  ///list列表
   Widget _getCenterText() {
     return Container(
       margin: const EdgeInsets.only(top: 50),

@@ -49,7 +49,7 @@ class LoginLogic extends GetxController {
         GetStorage().save();
         Get.offAllNamed(Routes.TABBAR);
       } else {
-        JWToastUtil.showToastCenter("${resp.message}");
+        JWToastUtil.showToastCenter("${resp.msg}");
       }
     } else {
       JWToastUtil.showToastCenter(WBGlobalization.check_input.tr);
