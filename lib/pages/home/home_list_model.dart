@@ -1,12 +1,12 @@
 
 
 class HomeListModel {
-  int? curpage;
-  int? allnum;
-  List<ListItemBean>? newslist;
+  int curpage =  1;
+  int allnum =1;
+  List<ListItemBean> newslist = [];
 
 
-  HomeListModel({this.curpage, this.allnum, this.newslist});
+  HomeListModel();
 
   HomeListModel.fromJson(Map<String, dynamic> json) {
     curpage = json["curpage"];

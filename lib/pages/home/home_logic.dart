@@ -1,20 +1,17 @@
-import 'dart:ui';
 
 import 'package:demoflutter/pages/home/home_marquee_model.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:demoflutter/JWTools/jw_tools.dart';
 import '../../pages.dart';
-import 'home_banner_model.dart';
 import 'home_list_model.dart';
-import 'home_marquee_model.dart';
 
 class HomeLogic extends GetxController with StateMixin {
   late RefreshController refreshController;
 
-  // final homeBannerArray = <HomeBannerModel>[].obs;
-  final homeListModel = HomeListModel().obs;
-  final homeMarqueeString = HomeMarqueeModel().obs;
+  var homeListModel = HomeListModel().obs;
+  var homeMarqueeString = HomeMarqueeModel().obs;
+  var page = 1.obs;
 
   @override
   void onInit() {
@@ -31,21 +28,59 @@ class HomeLogic extends GetxController with StateMixin {
 
   void loadBanners() async {
     Future.delayed(const Duration(milliseconds: 3000), () {
-      refreshController.refreshCompleted();
+      refreshController.refreshCompleted(resetFooterState: true);
       change(null, status: RxStatus.success()); //Rx通知
     });
+    page.value = 1;
     Map<String, dynamic> param = {};
     param["num"] = 10;
-    param["page"] = 1;
+    param["page"] = page.value;
     // param["rand"] = "";
     // param["word"] = "";
     var bannerQuest =
         await JWAsyncHttpRequest().get(JWApi.bannerImg, queryParameters: param);
+
     if (null != bannerQuest) {
       homeListModel.value = HomeListModel.fromJson(bannerQuest.data);
     } else {
       JWToastUtil.showSuccessToast("list异常");
     }
+  }
+
+  void loadMoreBanners() async {
+    var nowpage = ++page.value;
+    if (nowpage > homeListModel.value.allnum) {
+      JWToastUtil.showToastCenter("无更多数据");
+      refreshController.loadComplete();
+      page.value = homeListModel.value.allnum;
+      return;
+    }
+    Map<String, dynamic> param = {};
+    param["num"] = 10;
+    param["page"] = nowpage;
+    // param["rand"] = "";
+    // param["word"] = "";
+    var bannerQuest =
+        await JWAsyncHttpRequest().get(JWApi.bannerImg, queryParameters: param);
+    if (null != bannerQuest) {
+      var bean = HomeListModel.fromJson(bannerQuest.data);
+      if (page.value <= bean.allnum) {
+        homeListModel.value.allnum = bean.allnum;
+        homeListModel.value.curpage = bean.curpage;
+        for (var element in bean.newslist) {
+          homeListModel.value.newslist.add(element);
+        }
+      }
+    } else {
+      JWToastUtil.showSuccessToast("list异常");
+    }
+    refreshController.loadComplete();
+    refresh();
+  }
+
+  void onItemOnClick(int position){
+    var newslist = homeListModel.value.newslist[position];
+    JWToastUtil.showToastCenter(newslist.description.toString());
   }
 
   void judgeLogin() {

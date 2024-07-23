@@ -1,6 +1,4 @@
-import 'dart:html';
-
-import 'package:demoflutter/internationalization/globalization.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:demoflutter/common_ui/wb_cus_image_view.dart';
 import 'package:demoflutter/common_ui/wb_scaffold.dart';
@@ -39,16 +37,45 @@ class HomePage extends StatelessWidget {
         ],
       ),
       backgroundColor: viewbgColor,
-      body: logic.obx(
-        (state) => Container(
-          child: SmartRefresher(
-            controller: logic.refreshController,
-            onRefresh: logic.refreshData,
-            header: CNHeader(),
-            child: ListView(
-              children: [_banner(), _marqueeText(), _getCenterText()],
-            ),
-          ),
+      body: _getBodyView(),
+    );
+  }
+
+  Widget _getBodyView() {
+    // Obx(() {//加载更多时系统自动调用刷新
+    //   return Container(
+    //     child: SmartRefresher(
+    //       controller: logic.refreshController,
+    //       enablePullUp: true,
+    //       enablePullDown: true,
+    //       onRefresh: logic.refreshData,
+    //       onLoading: logic.loadMoreBanners,
+    //       header: CNHeader(),
+    //       child: ListView(
+    //         children: [
+    //           _banner(),
+    //           _marqueeText(),
+    //           _getCenterText(),
+    //         ],
+    //       ),
+    //     ),
+    //   );
+    // }),
+    return logic.obx(
+      //加载更多需要在logic类中调用刷新
+      (state) => SmartRefresher(
+        controller: logic.refreshController,
+        enablePullUp: true,
+        enablePullDown: true,
+        onRefresh: logic.refreshData,
+        onLoading: logic.loadMoreBanners,
+        header: CNHeader(),
+        child: ListView(
+          children: [
+            _banner(),
+            _marqueeText(),
+            _getListView(),
+          ],
         ),
       ),
     );
@@ -62,7 +89,7 @@ class HomePage extends StatelessWidget {
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12), color: Colors.transparent),
       child: Swiper(
-        itemCount: logic.homeListModel.value.newslist!.length,
+        itemCount: logic.homeListModel.value.newslist.length,
         itemHeight: Get.width * 0.4,
         autoplay: true,
         pagination: SwiperPagination(
@@ -72,7 +99,7 @@ class HomePage extends StatelessWidget {
                 size: const Size(6, 4),
                 activeSize: const Size(10, 4))),
         itemBuilder: (context, index) {
-          var model = logic.homeListModel.value.newslist![index];
+          var model = logic.homeListModel.value.newslist[index];
           return GestureDetector(
             onTap: () {
               logic.launchURL(model.url.toString());
@@ -110,18 +137,21 @@ class HomePage extends StatelessWidget {
   }
 
   ///list列表
-  Widget _getCenterText() {
+  Widget _getListView() {
     return ListView.builder(
         shrinkWrap: true,
         physics: NeverScrollableScrollPhysics(),
-        itemCount: logic.homeListModel.value.newslist?.length,
+        itemCount: logic.homeListModel.value.newslist.length,
         itemBuilder: (child, index) {
           return getItemView(index);
         });
   }
 
   Widget getItemView(int position) {
-    return Expanded(
+    return GestureDetector(
+      onTap: () {
+        logic.onItemOnClick(position);
+      },
       child: Container(
         margin: const EdgeInsets.fromLTRB(13, 6, 13, 6),
         padding: const EdgeInsets.all(8),
@@ -132,14 +162,13 @@ class HomePage extends StatelessWidget {
             Row(
               children: <Widget>[
                 Text(
-                  logic.homeListModel.value.newslist![position].source
+                  logic.homeListModel.value.newslist[position].source
                       .toString(),
                   style: const TextStyle(fontSize: 13),
                 ),
                 const Spacer(),
                 Text(
-                  logic.homeListModel.value.newslist![position].ctime
-                      .toString(),
+                  logic.homeListModel.value.newslist[position].ctime.toString(),
                   style: const TextStyle(fontSize: 13),
                 ),
               ],
@@ -149,56 +178,61 @@ class HomePage extends StatelessWidget {
             ),
             Row(
               children: [
-                WBCusImageView(
-                  icon: logic.homeListModel.value.newslist![position].picUrl
-                      .toString(),
-                  width: 120,
-                  height: 70,
-                ),
+                getStateTypeView(1, position),
                 const SizedBox(
                   width: 5,
                 ),
-                Expanded(
-                  child: Container(
-                    alignment: Alignment.topLeft,
-                    child: Column(
-                      children: [
-                        Container(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            logic.homeListModel.value.newslist![position].title
-                                .toString(),
-                            textAlign: TextAlign.start,
-                            overflow: TextOverflow.ellipsis,
-                            softWrap: false,
-                            style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 2,
-                        ),
-                        Container(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            logic.homeListModel.value.newslist![position]
-                                .description
-                                .toString(),
-                            textAlign: TextAlign.left,
-                            overflow: TextOverflow.clip,
-                            softWrap: true,
-                            style: const TextStyle(fontSize: 10),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
+                getStateTypeView(2, position),
               ],
             ),
           ],
         ),
       ),
     );
+  }
+
+  Widget getStateTypeView(int type, int position) {
+    if ((position % 2 == 0 && type == 1) || (position % 2 != 0 && type == 2)) {
+      return WBCusImageView(
+        icon: logic.homeListModel.value.newslist[position].picUrl.toString(),
+        width: 120,
+        height: 70,
+      );
+    } else {
+      return Expanded(
+        child: Container(
+          alignment: Alignment.topLeft,
+          child: Column(
+            children: [
+              Container(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  logic.homeListModel.value.newslist[position].title.toString(),
+                  textAlign: TextAlign.start,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(
+                height: 2,
+              ),
+              Container(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  logic.homeListModel.value.newslist[position].description
+                      .toString(),
+                  textAlign: TextAlign.left,
+                  overflow: TextOverflow.clip,
+                  softWrap: true,
+                  style: const TextStyle(fontSize: 10),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
   }
 }
