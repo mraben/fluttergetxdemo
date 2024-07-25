@@ -1,7 +1,10 @@
+import 'dart:html';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:demoflutter/common_ui/wb_cus_image_view.dart';
 import 'package:demoflutter/common_ui/wb_scaffold.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import '../../JWTools/jw_tools.dart';
 import '../../r.dart';
@@ -61,22 +64,44 @@ class HomePage extends StatelessWidget {
     //     ),
     //   );
     // }),
+    // return logic.obx(
+    //   //加载更多需要在logic类中调用刷新
+    //   (state) => SmartRefresher(
+    //     controller: logic.refreshController,
+    //     enablePullUp: true,
+    //     enablePullDown: true,
+    //     onRefresh: logic.refreshData,
+    //     onLoading: logic.loadMoreBanners,
+    //     header: CNHeader(),
+    //     child: ListView(
+    //       children: [
+    //         _banner(),
+    //         _marqueeText(),
+    //         _getListView(),
+    //       ],
+    //     ),
+    //   ),
+    // );
     return logic.obx(
       //加载更多需要在logic类中调用刷新
-      (state) => SmartRefresher(
-        controller: logic.refreshController,
-        enablePullUp: true,
-        enablePullDown: true,
-        onRefresh: logic.refreshData,
-        onLoading: logic.loadMoreBanners,
-        header: CNHeader(),
-        child: ListView(
-          children: [
-            _banner(),
-            _marqueeText(),
-            _getListView(),
-          ],
-        ),
+      (state) => Column(
+        children: [
+          _banner(),
+          _marqueeText(),
+          Expanded(
+            child: Scrollbar(
+              child: SmartRefresher(
+                controller: logic.refreshController,
+                enablePullUp: true,
+                enablePullDown: true,
+                onRefresh: logic.refreshData,
+                onLoading: logic.loadMoreBanners,
+                header: CNHeader(),
+                child: _getListView(),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -139,8 +164,9 @@ class HomePage extends StatelessWidget {
   ///list列表
   Widget _getListView() {
     return ListView.builder(
-        shrinkWrap: true,
-        physics: NeverScrollableScrollPhysics(),
+        // Scrollbar中不需要设置shrinkWrap/physics
+        // shrinkWrap: true,
+        // physics: NeverScrollableScrollPhysics(),
         itemCount: logic.homeListModel.value.newslist.length,
         itemBuilder: (child, index) {
           return getItemView(index);
